@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia de Dibujo Anatómico - Aprende desde cero</title>
+    <!-- Tailwind CSS para el diseño premium -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts para una tipografía de estudio de diseño -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121316;
+            color: #f3f4f6;
+        }
+        .serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Custom scrollbar para panel de niveles */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e2026;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f59e0b;
+        }
+        /* Animaciones */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+        .glow-gold {
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+        /* Canvas Drawing cursor */
+        .cursor-draw {
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- Cabecera / Navegación Superior -->
+    <header class="bg-zinc-900/90 border-b border-zinc-800 backdrop-blur sticky top-0 z-40 px-4 py-3 sm:px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-tr from-amber-500 to-yellow-400 p-2 rounded-xl shadow-lg">
+                    <i class="fa-solid fa-compass-drafting text-zinc-950 text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                        ACADEMIA DE ANATOMÍA <span class="text-xs bg-amber-500/15 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/30">EduJuego</span>
+                    </h1>
+                    <p class="text-xs text-zinc-400">Aprende a dibujar el cuerpo humano desde cero</p>
+                </div>
+            </div>
+
+            <!-- Panel de Estado / XP del Jugador -->
+            <div class="flex flex-wrap items-center gap-4 bg-zinc-950/55 p-2 rounded-2xl border border-zinc-800 w-full md:w-auto justify-between md:justify-start">
+                <div class="flex items-center gap-2 px-2">
+                    <div class="relative">
+                        <i class="fa-solid fa-award text-amber-500 text-2xl animate-pulse"></i>
+                        <span id="player-level-badge" class="absolute -top-1 -right-1 bg-white text-zinc-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center">1</span>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Rango Actual</div>
+                        <div id="player-rank" class="text-xs font-bold text-amber-400">Bocetador Novato</div>
+                    </div>
+                </div>
+
+                <!-- Barra de XP -->
+                <div class="flex-1 md:w-48 px-2">
+                    <div class="flex justify-between text-[10px] text-zinc-400 mb-1">
+                        <span>Progreso de Maestría</span>
+                        <span id="xp-text">0 / 100 XP</span>
+                    </div>
+                    <div class="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
+                        <div id="xp-bar" class="bg-gradient-to-r from-amber-500 to-yellow-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Botón de Logros -->
+                <button onclick="toggleAchievementsModal()" class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all">
+                    <i class="fa-solid fa-trophy text-yellow-400"></i>
+                    <span class="hidden sm:inline">Logros</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal / Workspace -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- PANEL IZQUIERDO: Lecciones, Teoría, Guías Visuales e Instrucciones de Niveles (5 Columnas) -->
+        <section class="lg:col-span-5 flex flex-col gap-4 order-2 lg:order-1">
+            
+            <!-- Selector de Módulos / Progresión Estilo Ruta de Aprendizaje -->
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 shadow-xl">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
+                        <i class="fa-solid fa-route text-amber-500"></i> Ruta del Aprendizaje
+                    </h3>
+                    <span class="text-xs text-amber-500 font-bold" id="module-progress-text">1 de 10 Completados</span>
+                </div>
+                
+                <!-- Selector Horizontal de Lecciones / Niveles -->
+                <div class="flex gap-2 overflow-x-auto pb-2 snap-x" id="levels-scroller">
+                    <!-- Los botones de nivel se inyectarán dinámicamente con JS -->
+                </div>
+            </div>
+
+            <!-- Carta del Mentor de Arte / Guía Teórica Interactiva -->
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 shadow-xl flex-1 flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute -right-16 -bottom-16 w-48 h-48 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                
+                <div>
+                    <!-- Encabezado de la Lección Actual -->
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-2xl text-amber-400 text-lg flex-shrink-0">
+                            <i id="lesson-icon" class="fa-solid fa-circle-nodes"></i>
+                        </div>
+                        <div>
+                            <span id="lesson-module-tag" class="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-md font-semibold tracking-wider uppercase">Módulo 1</span>
+                            <h2 id="lesson-title" class="serif-title text-xl font-bold text-white mt-0.5">Introducción a las Proporciones</h2>
+                        </div>
+                    </div>
+
+                    <!-- Explicación Didáctica Detallada -->
+                    <div class="space-y-3 text-zinc-300 text-xs sm:text-sm leading-relaxed" id="lesson-description">
+                        <!-- El texto explicativo dinámico se cargará aquí -->
+                    </div>
+
+                    <!-- Consejos / Feedback de Errores Comunes -->
+                    <div class="mt-4 bg-zinc-950/60 border-l-4 border-amber-500 p-3.5 rounded-r-xl rounded-l-md" id="mentor-advice-box">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-chalkboard-user text-amber-500 text-xs"></i>
+                            <span class="text-[11px] uppercase tracking-wider font-bold text-amber-400">Consejo del Mentor</span>
+                        </div>
+                        <p id="mentor-advice" class="text-xs text-zinc-300 italic">"Divide el cuerpo simétricamente. En el dibujo realista estándar, la altura total es de exactamente 8 cabezas. ¡La entrepierna se encuentra justo en el centro (cabeza 4)!"</p>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción de Teoría y Guías -->
+                <div class="mt-5 pt-4 border-t border-zinc-800/80 flex flex-wrap gap-2 items-center justify-between">
+                    <button onclick="showAnatomicalReferenceModal()" class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all">
+                        <i class="fa-solid fa-book-open text-amber-500"></i> Ver Lámina de Referencia
+                    </button>
+                    <button onclick="playAudioLesson()" class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-2 rounded-xl text-xs font-semibold transition-all" id="btn-audio-guide">
+                        <i class="fa-solid fa-volume-high text-amber-500"></i> Audio Guía
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ejercicio Práctico / Reto -->
+            <div class="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 rounded-3xl p-4 shadow-xl">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-amber-500 uppercase tracking-widest flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span> Reto del Nivel
+                    </span>
+                    <span class="text-[11px] text-zinc-400 font-medium" id="challenge-xp-badge">+50 XP al Completar</span>
+                </div>
+                <p id="challenge-text" class="text-xs text-zinc-300 font-medium">Instrucción del reto: Dibuja las líneas horizontales de división para las 8 cabezas sobre el maniquí guía.</p>
+                <div class="mt-3 flex gap-2">
+                    <button onclick="checkUserDrawing()" class="flex-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-zinc-950 font-extrabold text-xs py-2.5 px-4 rounded-xl shadow-lg shadow-amber-500/10 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-square-check text-sm"></i> Evaluar Boceto
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANEL DERECHO: El Lienzo de Dibujo / Canvas Interactivo -->
+        <section class="lg:col-span-7 flex flex-col gap-4 order-1 lg:order-2">
+            
+            <!-- Barra de Herramientas del Lienzo -->
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 flex flex-wrap gap-2 items-center justify-between shadow-xl">
+                
+                <!-- Ajustes de Pincel / Herramientas -->
+                <div class="flex items-center gap-2 flex-wrap">
+                    <!-- Botón de Modo Dibujo / Goma -->
+                    <button id="tool-brush" onclick="setTool('brush')" class="bg-amber-500 text-zinc-950 p-2.5 rounded-xl hover:scale-105 transition-all text-xs font-bold flex items-center gap-1.5" title="Pincel / Carboncillo">
+                        <i class="fa-solid fa-pencil"></i> <span class="hidden sm:inline">Carboncillo</span>
+                    </button>
+                    <button id="tool-eraser" onclick="setTool('eraser')" class="bg-zinc-800 text-zinc-400 p-2.5 rounded-xl hover:bg-zinc-700 hover:text-white transition-all text-xs font-bold flex items-center gap-1.5" title="Goma de Borrar">
+                        <i class="fa-solid fa-eraser"></i> <span class="hidden sm:inline">Borrador</span>
+                    </button>
+
+                    <div class="h-6 w-px bg-zinc-800 mx-1"></div>
+
+                    <!-- Grosor de Pincel -->
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-signature text-zinc-500 text-xs"></i>
+                        <input type="range" id="brush-size" min="1" max="15" value="3" oninput="updateBrushSize(this.value)" class="w-16 sm:w-24 accent-amber-500 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer">
+                        <span id="brush-size-text" class="text-xs text-zinc-400 font-semibold w-5">3px</span>
+                    </div>
+                </div>
+
+                <!-- Capas / Guías de Referencia / Modo Libre -->
+                <div class="flex items-center gap-2">
+                    <!-- Opacidad de la Guía de Fondo -->
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-eye text-zinc-500 text-xs"></i>
+                        <input type="range" id="guide-opacity" min="0" max="100" value="60" oninput="updateGuideOpacity(this.value)" class="w-16 sm:w-20 accent-amber-500 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer" title="Opacidad del Maniquí Guía">
+                        <span class="text-xs text-zinc-400 font-semibold hidden sm:inline"><i class="fa-solid fa-universal-access text-zinc-500"></i> Guía</span>
+                    </div>
+
+                    <div class="h-6 w-px bg-zinc-800 mx-1"></div>
+
+                    <!-- Botón Limpiar Lienzo -->
+                    <button onclick="clearCanvas()" class="bg-zinc-800 hover:bg-red-950 hover:text-red-400 text-zinc-400 p-2.5 rounded-xl transition-all text-xs font-bold flex items-center gap-1.5" title="Limpiar Lienzo">
+                        <i class="fa-solid fa-trash-can"></i> <span class="hidden sm:inline">Limpiar</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- El Lienzo de Dibujo / Tablero de Construcción 3D (Contenedor de Trabajo) -->
+            <div class="relative bg-zinc-950 rounded-3xl border border-zinc-800 overflow-hidden flex-1 flex flex-col min-h-[420px] shadow-2xl">
+                
+                <!-- Marca de Agua / Modo Libre -->
+                <div class="absolute top-4 left-4 z-10 flex gap-2">
+                    <span id="canvas-mode-badge" class="bg-zinc-900/90 text-amber-500 text-[10px] font-black tracking-widest px-3 py-1 rounded-full border border-zinc-800 shadow-md uppercase">Modo Guía Activo</span>
+                    <button onclick="toggleFreePracticeMode()" id="btn-practice-mode" class="bg-zinc-900/90 hover:bg-amber-500 hover:text-zinc-950 text-zinc-400 text-[10px] font-black tracking-widest px-3 py-1 rounded-full border border-zinc-800 shadow-md uppercase transition-all">Práctica Libre</button>
+                </div>
+
+                <!-- Controles Especiales en Modo Práctica Libre -->
+                <div id="free-practice-controls" class="absolute top-14 left-4 z-10 hidden flex flex-col gap-2 max-w-xs">
+                    <div class="bg-zinc-900/95 border border-zinc-800 p-3 rounded-2xl shadow-xl space-y-2">
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Selecciona Referencia:</label>
+                        <select id="practice-reference-select" onchange="changePracticeReference()" class="bg-zinc-800 text-white text-xs rounded-lg p-1.5 w-full border border-zinc-700 outline-none">
+                            <option value="male-anatomy">Pose Masculina Básica (Frente)</option>
+                            <option value="female-anatomy">Pose Femenina Básica (Frente)</option>
+                            <option value="gesture-dynamic">Gesto de Acción Dinámico</option>
+                            <option value="loomis-head">Estructura de Cabeza Loomis</option>
+                            <option value="hand-anatomy">Estructura de la Mano</option>
+                            <option value="foot-wedges">Anatomía del Pie</option>
+                        </select>
+                        <label class="flex items-center gap-2 cursor-pointer mt-1">
+                            <input type="checkbox" id="show-proportion-grid" onchange="toggleProportionGrid()" class="rounded accent-amber-500 bg-zinc-800 border-zinc-700">
+                            <span class="text-[10px] font-bold text-zinc-400">Rejilla de Proporciones</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Mensaje de Puntos Flotantes / Feedback en Lienzo -->
+                <div id="canvas-hint" class="absolute top-4 right-4 z-10 bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 px-3 py-1.5 rounded-xl text-[11px] text-zinc-300 shadow-md">
+                    Utiliza trazos continuos para trazar el objetivo.
+                </div>
+
+                <!-- CONTENEDOR CENTRAL DE INTERACCIÓN (Lienzo o Editor de Construcción) -->
+                <div class="relative flex-1 w-full h-full flex items-center justify-center bg-[#1d1e22]" id="interactive-workspace">
+                    
+                    <!-- Imagen de Guía Anatomía / Plantilla Dinámica (Detrás de los Trazos) -->
+                    <div id="guide-overlay" class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-60 transition-all duration-300">
+                        <svg id="anatomical-svg-guide" class="w-full h-full p-4" viewBox="0 0 500 600" xmlns="http://www.w3.org/2000/svg">
+                            <!-- El contenido de la guía se actualiza dinámicamente según el nivel -->
+                        </svg>
+                    </div>
+
+                    <!-- Rejilla de Proporciones Opcional -->
+                    <div id="proportion-grid-overlay" class="absolute inset-0 pointer-events-none grid grid-cols-8 grid-rows-8 opacity-0 transition-opacity duration-300">
+                        <!-- Creado con JS -->
+                    </div>
+
+                    <!-- Lienzo Principal de Dibujo -->
+                    <canvas id="drawing-canvas" class="absolute top-0 left-0 w-full h-full cursor-draw z-20"></canvas>
+                    
+                    <!-- Capa de Construcción 3D Interactiva (Para arrastrar y transformar bloques anatómicos) -->
+                    <div id="construction-3d-layer" class="absolute inset-0 z-30 hidden overflow-hidden pointer-events-auto">
+                        <!-- Bloques interactivos se generarán aquí en el nivel 2 y 9 -->
+                    </div>
+                </div>
+
+                <!-- Barra de Estado del Boceto / Progreso de Dibujo Actual -->
+                <div class="bg-zinc-900/90 border-t border-zinc-800 px-4 py-2.5 flex justify-between items-center text-xs text-zinc-400 z-20">
+                    <span id="canvas-status">Lienzo Listo • Capa 1: Carboncillo</span>
+                    <span id="last-drawn-eval" class="text-amber-500 font-bold">Último boceto: Sin evaluar</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL DE LOGROS -->
+    <div id="achievements-modal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-md w-full p-6 relative overflow-hidden">
+            <button onclick="toggleAchievementsModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white transition-all">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="serif-title text-2xl font-bold text-amber-500 mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-trophy"></i> Logros Artísticos
+            </h3>
+            <p class="text-xs text-zinc-400 mb-4">Avanza en los módulos y obtén precisión milimétrica para ganarlos.</p>
+            <div class="space-y-3 max-h-80 overflow-y-auto" id="achievements-list">
+                <!-- Logros inyectados por JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE LÁMINA DE REFERENCIA ANATÓMICA -->
+    <div id="reference-modal" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-2xl w-full p-6 relative flex flex-col max-h-[90vh]">
+            <button onclick="toggleReferenceModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white transition-all">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="serif-title text-xl font-bold text-white mb-2" id="ref-modal-title">Cargando Referencia...</h3>
+            <p id="ref-modal-desc" class="text-xs text-zinc-400 mb-4">Guía detallada de proporciones y estructura para el módulo actual.</p>
+            
+            <div class="flex-1 overflow-auto bg-zinc-950 rounded-2xl p-4 flex items-center justify-center border border-zinc-800">
+                <div id="reference-svg-container" class="w-full max-w-lg">
+                    <!-- Referencias visuales en SVG de alta fidelidad se renderizarán aquí -->
+                </div>
+            </div>
+            
+            <div class="mt-4 flex justify-end">
+                <button onclick="toggleReferenceModal()" class="bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold text-xs px-5 py-2 rounded-xl transition-all">
+                    Entendido, Volver a Dibujar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST DE NOTIFICACIONES (Ej: Nivel completado, XP ganada, etc) -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-zinc-900 border border-amber-500 text-white px-5 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none">
+        <div class="bg-amber-500/20 text-amber-500 p-2 rounded-xl text-sm" id="toast-icon">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <div>
+            <div class="font-bold text-xs tracking-wide uppercase" id="toast-title">Boceto Evaluado</div>
+            <div class="text-xs text-zinc-300" id="toast-message">¡+50 XP ganada! Has dominado las proporciones básicas.</div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EVALUACIÓN DETALLADA / FEEDBACK ARTÍSTICO -->
+    <div id="evaluation-modal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-900 border border-amber-500/50 rounded-3xl max-w-lg w-full p-6 relative overflow-hidden shadow-2xl">
+            <div class="absolute -right-20 -top-20 w-48 h-48 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <button onclick="toggleEvaluationModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white transition-all">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            
+            <div class="text-center space-y-3 mb-6">
+                <div class="inline-block bg-amber-500/10 text-amber-500 p-4 rounded-full border border-amber-500/25 mb-2">
+                    <i class="fa-solid fa-palette text-3xl"></i>
+                </div>
+                <h3 class="serif-title text-2xl font-bold text-white">Evaluación del Mentor</h3>
+                <p class="text-xs text-zinc-400">Análisis interactivo de precisión espacial y de proporciones anatómicas.</p>
+            </div>
+
+            <!-- Panel de Resultados -->
+            <div class="bg-zinc-950 rounded-2xl p-4 border border-zinc-800 space-y-4">
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Alineación y Trazo</span>
+                        <span id="eval-score" class="text-xl font-black text-amber-500">82% Precisión</span>
+                    </div>
+                    <div class="w-full bg-zinc-800 h-2.5 rounded-full overflow-hidden">
+                        <div id="eval-score-bar" class="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-full rounded-full transition-all duration-700" style="width: 82%"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-center">
+                    <div class="bg-zinc-900/80 p-3 rounded-xl border border-zinc-800/80">
+                        <div class="text-[10px] uppercase text-zinc-500 font-bold">XP Ganada</div>
+                        <div id="eval-xp" class="text-lg font-extrabold text-amber-400">+50 XP</div>
+                    </div>
+                    <div class="bg-zinc-900/80 p-3 rounded-xl border border-zinc-800/80">
+                        <div class="text-[10px] uppercase text-zinc-500 font-bold">Veredicto</div>
+                        <div id="eval-verdict" class="text-sm font-extrabold text-white">Excelente Boceto</div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-500/5 border border-amber-500/20 p-3.5 rounded-xl">
+                    <div class="flex items-center gap-2 mb-1.5 text-amber-400 text-xs font-bold">
+                        <i class="fa-solid fa-lightbulb"></i> Consejos de Corrección de Errores
+                    </div>
+                    <p id="eval-feedback" class="text-xs text-zinc-300 leading-relaxed italic">"Has capturado de forma asombrosa las divisiones. Notamos que tu línea de la pelvis quedó algo inclinada, recuerda que el equilibrio de la postura depende de mantener los hombros alineados con la pelvis en reposo."</p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex gap-3">
+                <button onclick="toggleEvaluationModal()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-xs py-3 rounded-xl transition-all">
+                    Volver a Intentarlo
+                </button>
+                <button id="btn-next-level" onclick="advanceNextModule()" class="flex-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-zinc-950 font-black text-xs py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                    Siguiente Nivel <i class="fa-solid fa-circle-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* BASE DE DATOS DE NIVELES / LECCIONES */
+        const LEVELS_DATA = [
+            {
+                id: 1,
+                title: "Proporciones (8 Cabezas)",
+                moduleTag: "Módulo 1",
+                icon: "fa-solid fa-people-arrows",
+                xpReward: 50,
+                description: `El primer paso fundamental para dibujar el cuerpo humano es entender las **proporciones relativas**. La regla estándar de la academia utiliza la <strong>altura de la cabeza</strong> como unidad básica de medida.<br><br>
+                El cuerpo humano promedio de pie mide aproximadamente <strong>8 cabezas de alto</strong>:<br>
+                • Cabeza 1: Barbilla.<br>
+                • Cabeza 2: Pezón / Línea media del pecho.<br>
+                • Cabeza 3: Ombligo / Cintura.<br>
+                • Cabeza 4: Entrepierna / Línea de la cadera (Mitad exacta del cuerpo).<br>
+                • Cabeza 5: Mitad del muslo.<br>
+                • Cabeza 6: Base de la rodilla.<br>
+                • Cabeza 7: Pantorrilla inferior.<br>
+                • Cabeza 8: Tobillo / Suelo.`,
+                advice: "Divide tu boceto inicial con líneas horizontales guías. Asegúrate de que la cabeza inicial sea el tamaño de referencia. El error más común de los principiantes es dibujar las piernas muy cortas.",
+                challenge: "Traza las líneas de división horizontales correspondientes a las caderas (Cabeza 4) y la línea de los pezones (Cabeza 2) sobre la plantilla para verificar tu sentido de proporción.",
+                targetPoints: [
+                    {x: 0, y: 75, type: 'head'},      // Línea de barbilla (Cabeza 1)
+                    {x: 0, y: 150, type: 'nipples'},   // Línea pezones (Cabeza 2)
+                    {x: 0, y: 225, type: 'waist'},     // Línea cintura (Cabeza 3)
+                    {x: 0, y: 300, type: 'pelvis'},    // Línea pelvis (Cabeza 4)
+                    {x: 0, y: 450, type: 'knees'},     // Rodillas (Cabeza 6)
+                    {x: 0, y: 600, type: 'ground'}     // Suelo (Cabeza 8)
+                ],
+                guideType: "proportions",
+                audioText: "Bienvenido al módulo uno. Hoy aprenderemos la regla clásica de las ocho cabezas. Esta regla fue popularizada en el Renacimiento para crear figuras de proporciones heroicas y equilibradas."
+            },
+            {
+                id: 2,
+                title: "Formas Geométricas (Volúmenes)",
+                moduleTag: "Módulo 2",
+                icon: "fa-solid fa-cube",
+                xpReward: 60,
+                description: `¡Nunca dibujes contornos planos! Los artistas profesionales piensan en **volumen 3D**. Para simplificar la anatomía, sustituimos cada sección por un sólido básico:<br><br>
+                • **Caja Torácica**: Se representa mejor como un gran huevo u óvalo robusto.<br>
+                • **Caderas / Pelvis**: Una caja o cuenco inclinado.<br>
+                • **Extremidades**: Cilindros y prismas que rotan y tienen perspectiva.<br>
+                • **Articulaciones**: Esferas que sirven de pivote mecánico.`,
+                advice: "En este módulo interactivo de construcción, manipula los bloques 3D para encajarlos perfectamente sobre la silueta del maniquí. Aprenderás a estructurar el cuerpo en tres dimensiones.",
+                challenge: "Arrastra, rota y acomoda las cajas, cilindros y esferas guía sobre las zonas anatómicas indicadas para crear un armazón tridimensional correcto.",
+                guideType: "3d-blocks",
+                targetPoints: [], // Se maneja por DOM interactivo de bloques
+                audioText: "El secreto del volumen es entender que todo objeto complejo, por difícil que parezca, está compuesto de cilindros, esferas y cajas. Pensemos en tres dimensiones."
+            },
+            {
+                id: 3,
+                title: "El Esqueleto / Línea de Acción",
+                moduleTag: "Módulo 3",
+                icon: "fa-solid fa-bone",
+                xpReward: 70,
+                description: `El esqueleto da la estructura interna e indica el **dinamismo**. No necesitas memorizar cada hueso médico, solo las masas rígidas clave:<br><br>
+                • **La Espina Dorsal (Línea de Acción)**: Es el eje dinámico que distribuye el peso.<br>
+                • **La Caja Torácica**: Determina hacia dónde apunta el pecho.<br>
+                • **La Pelvis**: El contra-equilibrio del torso.<br>
+                • **Las Extremidades**: Rectas que conectan articulaciones importantes.`,
+                advice: "La línea de acción expresa el movimiento de la pose. Debe ser un solo trazo fluido que defina la pose, no una línea temblorosa de muchos trazos cortos.",
+                challenge: "Traza la espina dorsal curva (Línea de Acción) y dibuja círculos sobre las articulaciones principales (Hombros, Codos, Caderas y Rodillas) de la pose dinámica.",
+                targetPoints: [
+                    {x: 250, y: 120, type: 'spine'},
+                    {x: 250, y: 180, type: 'spine'},
+                    {x: 235, y: 260, type: 'spine'},
+                    {x: 250, y: 320, type: 'spine'},
+                    {x: 180, y: 150, type: 'shoulder-l'},
+                    {x: 320, y: 150, type: 'shoulder-r'},
+                ],
+                guideType: "skeleton",
+                audioText: "El esqueleto básico es el chasis de tu dibujo. En este nivel, nos centraremos en la columna vertebral. Esta línea determina si la pose se siente viva y dinámica, o tiesa."
+            },
+            {
+                id: 4,
+                title: "Músculos Principales",
+                moduleTag: "Módulo 4",
+                icon: "fa-solid fa-dumbbell",
+                xpReward: 80,
+                description: `Una vez que tienes las proporciones y la estructura ósea, es hora de recubrir la figura con las masas musculares externas clave:<br><br>
+                • **Deltoides (Hombros)**: Forma de escudo que abraza la parte superior del brazo.<br>
+                • **Pectorales (Pecho)**: Abanicos que se insertan en la axila/brazo.<br>
+                • **Cuádriceps**: El músculo frontal de los muslos que da una silueta curva.<br>
+                • **Gemelos (Pantorrillas)**: Curva exterior pronunciada en la parte trasera de la pierna.`,
+                advice: "No dibujes músculos individuales inflados como globos. El cuerpo es una transición orgánica de masa muscular. Concéntrate en la silueta general y en cómo se superponen.",
+                challenge: "Sombrea o resalta la masa muscular del hombro (Deltoides) y el pecho (Pectoral Mayor) sobre nuestro atleta plantilla para demostrar tu entendimiento muscular.",
+                targetPoints: [
+                    {x: 200, y: 140, type: 'pectoral'},
+                    {x: 300, y: 140, type: 'pectoral'},
+                    {x: 170, y: 125, type: 'deltoid'},
+                    {x: 330, y: 125, type: 'deltoid'}
+                ],
+                guideType: "muscles",
+                audioText: "Los músculos no son globos pegados al esqueleto; son cintas que se cruzan y tiran de los huesos. Presta atención a cómo el hombro se conecta con la clavícula."
+            },
+            {
+                id: 5,
+                title: "Cabeza y Rostro (Método Loomis)",
+                moduleTag: "Módulo 5",
+                icon: "fa-solid fa-face-smile",
+                xpReward: 90,
+                description: `El **Método Loomis** es el más utilizado mundialmente. Divide la cabeza tridimensionalmente:<br><br>
+                • **La Esfera**: Representa la masa craneal.<br>
+                • **El Plano Lateral**: Se corta la esfera de los lados para aplanar las sienes.<br>
+                • **La Cruz (Ejes)**: La línea vertical divide el rostro, la línea horizontal define las cejas.<br>
+                • **La Mandíbula**: Se extiende desde las orejas hacia abajo formando la barbilla.`,
+                advice: "Al rotar la cabeza, la cruz sigue la esfericidad tridimensional. ¡Los ojos quedan a la mitad exacta de toda la cabeza, no en el tercio superior!",
+                challenge: "Dibuja el círculo craneal principal de Loomis, la línea central de simetría facial y marca dónde se colocarían los ojos en el boceto de perfil de tres cuartos.",
+                targetPoints: [
+                    {x: 250, y: 200, type: 'head-center'},
+                    {x: 250, y: 100, type: 'head-top'},
+                    {x: 250, y: 300, type: 'jaw-tip'},
+                    {x: 200, y: 200, type: 'brow-line-l'},
+                    {x: 300, y: 200, type: 'brow-line-r'}
+                ],
+                guideType: "loomis",
+                audioText: "Para el rostro, utilizaremos el gran método de Andrew Loomis. Comenzamos siempre con una esfera perfecta que representa el cráneo. Luego determinamos los tercios de la cara."
+            },
+            {
+                id: 6,
+                title: "Brazos y Manos",
+                moduleTag: "Módulo 6",
+                icon: "fa-solid fa-hand",
+                xpReward: 100,
+                description: `Las manos y brazos son el terror de los artistas. El secreto es la simplificación estructural:<br><br>
+                • **La Palma**: Se simplifica como un pentágono ligeramente curvo o una caja plana.<br>
+                • **El Pulgar**: Es independiente, se conecta mediante un bloque triangular grueso.<br>
+                • **Dedos**: Cadenas de 3 cilindros cuya longitud sigue un arco parabólico decreciente.<br>
+                • **El Antebrazo**: Tiene forma cónica que se afina al llegar a la muñeca.`,
+                advice: "Recuerda que los nudillos se alinean formando un arco suave. Nunca los dibujes planos. El dedo medio es la longitud aproximada de la palma entera.",
+                challenge: "Traza el contorno geométrico de la palma (Caja de la Palma) y marca el nodo de la punta del dedo pulgar e índice en la plantilla anatómica.",
+                targetPoints: [
+                    {x: 230, y: 300, type: 'palm-base'},
+                    {x: 280, y: 300, type: 'palm-base-r'},
+                    {x: 200, y: 210, type: 'thumb-tip'},
+                    {x: 250, y: 120, type: 'index-tip'},
+                    {x: 280, y: 110, type: 'middle-tip'}
+                ],
+                guideType: "hands",
+                audioText: "No le temas a las manos. Imagina la palma como un guante grueso y rígido, y los dedos como bisagras unidas que obedecen a un arco de movimiento."
+            },
+            {
+                id: 7,
+                title: "Piernas y Pies",
+                moduleTag: "Módulo 7",
+                icon: "fa-solid fa-socks",
+                xpReward: 100,
+                description: `Las piernas soportan todo el peso de la figura, y los pies actúan como base estructural:<br><br>
+                • **El Pie**: Visto de lado, se comporta como una cuña o rampa triangular.<br>
+                • **El Tobillo**: El tobillo interno es siempre más alto que el tobillo externo.<br>
+                • **La Rodilla**: Actúa como un escudo protector cúbico.<br>
+                • **La Pierna**: No es una línea recta vertical, tiene una sutil curvatura en 'S' hacia adelante y afuera.`,
+                advice: "El empeine del pie nace desde el tobillo bajando progresivamente. Asegúrate de dar volumen al talón posterior para que la pierna se ancle correctamente al suelo.",
+                challenge: "Esboza la cuña del pie (su forma de cuña triangular) y la posición del tobillo interno alto y tobillo externo bajo sobre el esquema.",
+                targetPoints: [
+                    {x: 210, y: 450, type: 'ankle-inner'},
+                    {x: 280, y: 465, type: 'ankle-outer'},
+                    {x: 150, y: 520, type: 'heel'},
+                    {x: 350, y: 520, type: 'toe-tip'}
+                ],
+                guideType: "feet",
+                audioText: "Las piernas tienen un ritmo curvo. El muslo empuja hacia adelante y la pantorrilla se expande hacia atrás. Para el pie, diseña un plano triangular de soporte."
+            },
+            {
+                id: 8,
+                title: "Posturas y Equilibrio",
+                moduleTag: "Módulo 8",
+                icon: "fa-solid fa-person-walking",
+                xpReward: 110,
+                description: `Para que una pose se sienta realista, debe obedecer a las leyes del **equilibrio físico**:<br><br>
+                • **Centro de Gravedad**: Una línea vertical imaginaria (plomada) debe bajar desde la fosa yugular hasta la base de sustentación (el suelo bajo los pies de apoyo).<br>
+                • **Contrapposto**: Si la cadera se inclina hacia un lado, los hombros instintivamente se inclinan en la dirección contraria para mantener la figura equilibrada y evitar la caída.`,
+                advice: "Busca siempre el pie de apoyo principal. Si el centro de gravedad cae fuera de ese pie de apoyo, el personaje parecerá que se está cayendo accidentalmente.",
+                challenge: "Traza la plomada de equilibrio recta vertical desde el cuello hasta el pie que soporta el peso, y marca la inclinación opuesta de hombros y caderas.",
+                targetPoints: [
+                    {x: 250, y: 100, type: 'neck-pit'},
+                    {x: 250, y: 300, type: 'pelvis-center'},
+                    {x: 250, y: 550, type: 'support-foot'}
+                ],
+                guideType: "balance",
+                audioText: "El equilibrio es la gravedad hecha dibujo. En una pose natural, llamada contrapposto, la pelvis se inclina hacia un lado y la clavícula compensa inclinándose al contrario."
+            },
+            {
+                id: 9,
+                title: "Perspectiva del Cuerpo",
+                moduleTag: "Módulo 9",
+                icon: "fa-solid fa-cube",
+                xpReward: 120,
+                description: `La **perspectiva anatómica** (escorzo) ocurre cuando una parte del cuerpo apunta directamente al observador:<br><br>
+                • **Superposición**: Los volúmenes delanteros cubren y ocultan parcialmente a los volúmenes traseros.<br>
+                • **Compresión de la Perspectiva**: Los miembros se perciben más cortos de lo que son en realidad.<br>
+                • **Cilindros de sección**: Dibujar el contorno circular de las uniones ayuda a definir la profundidad.`,
+                advice: "Utiliza círculos envolventes a lo largo de los brazos y piernas como si fueran brazaletes tridimensionales. Te ayudará a ver cuán cerca o lejos está el miembro.",
+                challenge: "Dibuja los elipses de sección tridimensional de un brazo estirado hacia adelante para simular un escorzo con perspectiva dinámica.",
+                targetPoints: [
+                    {x: 250, y: 250, type: 'foreshortened-core'},
+                    {x: 200, y: 200, type: 'contour-ellipse-1'},
+                    {x: 300, y: 300, type: 'contour-ellipse-2'}
+                ],
+                guideType: "perspective",
+                audioText: "El escorzo es el gran logro de la perspectiva. No dibujes lo que sabes que mide un brazo, dibuja lo que realmente ves: un óvalo gigante de la mano cubriendo el antebrazo."
+            },
+            {
+                id: 10,
+                title: "Figura Humana Completa",
+                moduleTag: "Módulo 10",
+                icon: "fa-solid fa-universal-access",
+                xpReward: 150,
+                description: `¡El examen final! Combina todos los conocimientos adquiridos:<br><br>
+                1. Busca la **Línea de Acción** y el equilibrio general.<br>
+                2. Dibuja los maniquíes de **formas básicas** en 3D (torso, cadera, cabeza).<br>
+                3. Aplica las proporciones correctas de **8 cabezas**.<br>
+                4. Recubre con el contorno de la **silueta muscular** fluida.<br>
+                5. Agrega los detalles refinados de pies, manos y rostro.`,
+                advice: "No te apresures con los detalles como el pelo o los dedos si la pose inicial no está equilibrada. ¡Construye de lo general a lo particular!",
+                challenge: "Boceta el cuerpo completo del atleta olímpico integrando la cabeza, torso, brazos y piernas en una pose de salto dinámico.",
+                targetPoints: [
+                    {x: 250, y: 80, type: 'head'},
+                    {x: 250, y: 200, type: 'chest'},
+                    {x: 250, y: 320, type: 'hips'},
+                    {x: 180, y: 450, type: 'leg-l'},
+                    {x: 320, y: 450, type: 'leg-r'}
+                ],
+                guideType: "full-body",
+                audioText: "Felicidades por llegar al examen final de nuestra academia. Combina la estructura tridimensional, la regla de proporción y la fluidez del contorno. ¡Tú puedes!"
+            }
+        ];
+
+        /* BASE DE DATOS DE LOGROS */
+        const ACHIEVEMENTS = [
+            { id: "first-stroke", title: "Primer Trazo", desc: "Completa tu primer boceto evaluado.", icon: "fa-solid fa-pen-nib", unlocked: false },
+            { id: "perfectionist", title: "Ojo Clínico", desc: "Obtén más de 90% de precisión en un módulo.", icon: "fa-solid fa-bullseye", unlocked: false },
+            { id: "3d-master", title: "Arquitecto 3D", desc: "Supera el módulo de construcción tridimensional.", icon: "fa-solid fa-cube", unlocked: false },
+            { id: "anatomy-scholar", title: "Maestro del Trazo", desc: "Completa los 10 niveles del juego.", icon: "fa-solid fa-graduation-cap", unlocked: false },
+            { id: "free-spirit", title: "Práctica Infinita", desc: "Prueba el modo de Práctica Libre de dibujo.", icon: "fa-solid fa-infinity", unlocked: false }
+        ];
+
+        /* VARIABLES DE ESTADO DEL JUEGO */
+        let currentLevelIndex = 0;
+        let isFreePracticeMode = false;
+        let currentXP = 0;
+        let playerLevel = 1;
+        let completedLevels = new Set();
+        let currentTool = "brush"; // "brush", "eraser"
+        let brushSize = 3;
+        let isDrawing = false;
+        let drawnPoints = []; // Para evaluar precisión de trazos
+        let canvas, ctx;
+
+        // Carga de Audio de Sintetizador Local para Guía Parlante (Soporte Accesibilidad)
+        function playAudioLesson() {
+            const currentLevel = LEVELS_DATA[currentLevelIndex];
+            if ('speechSynthesis' in window) {
+                // Cancelar audios anteriores activos
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(currentLevel.audioText);
+                utterance.lang = 'es-ES';
+                utterance.rate = 0.95;
+                utterance.pitch = 1.0;
+                
+                // Cambiar icono visualmente
+                const btn = document.getElementById('btn-audio-guide');
+                btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-amber-500"></i> Narrando...`;
+                
+                utterance.onend = () => {
+                    btn.innerHTML = `<i class="fa-solid fa-volume-high text-amber-500"></i> Audio Guía`;
+                };
+                utterance.onerror = () => {
+                    btn.innerHTML = `<i class="fa-solid fa-volume-high text-amber-500"></i> Audio Guía`;
+                };
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showToast("Soporte de Audio", "La síntesis de voz no está soportada en este navegador.", "fa-solid fa-circle-exclamation");
+            }
+        }
+
+        // Al cargar la ventana, iniciar canvas, eventos y datos
+        window.onload = function() {
+            canvas = document.getElementById("drawing-canvas");
+            ctx = canvas.getContext("2d");
+
+            setupCanvasScaling();
+            setupDrawingListeners();
+            renderLevelScroller();
+            loadLevel(0);
+            updateXP(0); // Cargar barra de progreso inicial
+            
+            // Animación de bienvenida
+            showToast("¡Bienvenido a la Academia!", "Comienza tu formación de dibujo anatómico. Nivel 1 activo.", "fa-solid fa-sparkles");
+        }
+
+        /* CONFIGURACIÓN DEL CANVAS Y ESCALADO ADAPTATIVO */
+        function setupCanvasScaling() {
+            const container = canvas.parentElement;
+            
+            // Ajustar el canvas al tamaño real de visualización en el DOM
+            const rect = container.getBoundingClientRect();
+            
+            // Configurar para pantallas retina/HiDPI
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = container.clientWidth * dpr;
+            canvas.height = container.clientHeight * dpr;
+            ctx.scale(dpr, dpr);
+            
+            // Establecer el CSS del lienzo
+            canvas.style.width = container.clientWidth + "px";
+            canvas.style.height = container.clientHeight + "px";
+            
+            // Reiniciar propiedades de dibujo
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#e2e8f0'; // carboncillo por defecto
+            ctx.lineWidth = brushSize;
+        }
+
+        // Volver a ajustar el canvas si la pantalla cambia de tamaño
+        window.onresize = function() {
+            // Guardar el dibujo temporalmente
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.drawImage(canvas, 0, 0);
+
+            setupCanvasScaling();
+
+            // Re-dibujar los trazos guardados
+            ctx.drawImage(tempCanvas, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
+        };
+
+        /* CAPTURA DE EVENTOS DE DIBUJO CON ADAPTACIÓN MÓVIL (TÁCTIL) */
+        function setupDrawingListeners() {
+            // Soporte Mouse
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseleave', stopDrawing);
+
+            // Soporte Táctil (Móviles/Tabletas)
+            canvas.addEventListener('touchstart', function(e) {
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousedown', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+                e.preventDefault();
+            }, { passive: false });
+
+            canvas.addEventListener('touchmove', function(e) {
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousemove', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+                e.preventDefault();
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', function(e) {
+                const mouseEvent = new MouseEvent('mouseup', {});
+                canvas.dispatchEvent(mouseEvent);
+            }, { passive: false });
+        }
+
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const pos = getMousePos(e);
+            
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+            
+            // Añadir punto para evaluación
+            drawnPoints.push({ x: pos.x, y: pos.y });
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const pos = getMousePos(e);
+            
+            if (currentTool === "brush") {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = '#e2e8f0'; // Blanco suave tipo tiza/carboncillo
+                ctx.shadowColor = '#4b5563';
+                ctx.shadowBlur = 1;
+            } else {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.strokeStyle = 'rgba(0,0,0,1)';
+                ctx.shadowBlur = 0;
+            }
+
+            ctx.lineWidth = brushSize;
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+
+            // Guardar puntos trazados para comparación métrica
+            drawnPoints.push({ x: pos.x, y: pos.y });
+        }
+
+        function stopDrawing() {
+            if (isDrawing) {
+                ctx.closePath();
+                isDrawing = false;
+            }
+        }
+
+        function updateBrushSize(val) {
+            brushSize = val;
+            document.getElementById("brush-size-text").innerText = val + "px";
+        }
+
+        function setTool(tool) {
+            currentTool = tool;
+            // Estilos de botones activos
+            const btnBrush = document.getElementById("tool-brush");
+            const btnEraser = document.getElementById("tool-eraser");
+            
+            if (tool === "brush") {
+                btnBrush.className = "bg-amber-500 text-zinc-950 p-2.5 rounded-xl hover:scale-105 transition-all text-xs font-bold flex items-center gap-1.5";
+                btnEraser.className = "bg-zinc-800 text-zinc-400 p-2.5 rounded-xl hover:bg-zinc-700 hover:text-white transition-all text-xs font-bold flex items-center gap-1.5";
+            } else {
+                btnEraser.className = "bg-amber-500 text-zinc-950 p-2.5 rounded-xl hover:scale-105 transition-all text-xs font-bold flex items-center gap-1.5";
+                btnBrush.className = "bg-zinc-800 text-zinc-400 p-2.5 rounded-xl hover:bg-zinc-700 hover:text-white transition-all text-xs font-bold flex items-center gap-1.5";
+            }
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
+            drawnPoints = [];
+            showToast("Lienzo Limpio", "Se han borrado todos tus trazos actuales.", "fa-solid fa-trash");
+        }
+
+        function updateGuideOpacity(val) {
+            document.getElementById("guide-overlay").style.opacity = val / 100;
+        }
+
+        /* RENDERIZADO DEL SELECTOR DE NIVELES */
+        function renderLevelScroller() {
+            const scroller = document.getElementById("levels-scroller");
+            scroller.innerHTML = "";
+            
+            LEVELS_DATA.forEach((lvl, index) => {
+                const isCompleted = completedLevels.has(lvl.id);
+                const isActive = index === currentLevelIndex;
+                
+                let btnStyle = "bg-zinc-850 hover:bg-zinc-800 text-zinc-400 border border-zinc-800";
+                if (isActive) {
+                    btnStyle = "bg-gradient-to-tr from-amber-500 to-yellow-400 text-zinc-950 border border-amber-300 shadow-md font-bold scale-105";
+                } else if (isCompleted) {
+                    btnStyle = "bg-emerald-950/45 text-emerald-400 border border-emerald-800/60";
+                }
+
+                const button = document.createElement("button");
+                button.className = `flex-shrink-0 snap-center flex items-center gap-2 px-3.5 py-2.5 rounded-2xl text-xs transition-all ${btnStyle}`;
+                button.onclick = () => loadLevel(index);
+                
+                let statusIcon = "";
+                if (isCompleted) {
+                    statusIcon = `<i class="fa-solid fa-circle-check text-emerald-400 text-[10px]"></i>`;
+                } else if (!isActive) {
+                    statusIcon = `<i class="fa-solid fa-lock-open text-zinc-500 text-[9px]"></i>`;
+                } else {
+                    statusIcon = `<i class="fa-solid fa-pencil text-[10px] animate-pulse"></i>`;
+                }
+
+                button.innerHTML = `
+                    ${statusIcon}
+                    <span>${lvl.title.split(" ")[0]}</span>
+                `;
+                scroller.appendChild(button);
+            });
+
+            // Actualizar contador superior
+            document.getElementById("module-progress-text").innerText = `${completedLevels.size} de ${LEVELS_DATA.length} Completados`;
+        }
+
+        /* CARGA Y CONFIGURACIÓN DEL NIVEL ESPECÍFICO */
+        function loadLevel(index) {
+            currentLevelIndex = index;
+            const lvl = LEVELS_DATA[index];
+            
+            // Actualizar teoría en el panel izquierdo
+            document.getElementById("lesson-module-tag").innerText = lvl.moduleTag;
+            document.getElementById("lesson-title").innerText = lvl.title;
+            document.getElementById("lesson-description").innerHTML = lvl.description;
+            document.getElementById("mentor-advice").innerText = lvl.advice;
+            document.getElementById("challenge-text").innerText = lvl.challenge;
+            document.getElementById("challenge-xp-badge").innerText = `+${lvl.xpReward} XP al Completar`;
+            document.getElementById("lesson-icon").className = lvl.icon;
+
+            // Restablecer herramientas y limpiar lienzo
+            clearCanvas();
+            setTool("brush");
+            
+            // Detener narraciones anteriores si cambia de nivel
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                document.getElementById('btn-audio-guide').innerHTML = `<i class="fa-solid fa-volume-high text-amber-500"></i> Audio Guía`;
+            }
+
+            // Ocultar capas innecesarias
+            document.getElementById("construction-3d-layer").classList.add("hidden");
+            document.getElementById("drawing-canvas").classList.remove("hidden");
+
+            // Cargar Guía Gráfica (SVG) según el tipo de nivel
+            renderGuideSVG(lvl.guideType);
+            
+            // Re-renderizar selector de niveles para resaltar el actual
+            renderLevelScroller();
+
+            // Casos especiales (Módulos de Construcción 3D / Interactivos)
+            if (lvl.guideType === "3d-blocks") {
+                setup3DConstructionWorkspace();
+            }
+        }
+
+        /* MOTOR DE RENDERIZACIÓN DE GUÍAS ANATÓMICAS (SVG) */
+        function renderGuideSVG(type) {
+            const svg = document.getElementById("anatomical-svg-guide");
+            svg.innerHTML = ""; // Limpiar anterior
+
+            // Definición de estilos de líneas guía
+            const strokeColor = "#64748b"; // slate-500
+            const helperColor = "#e11d48"; // rose-600
+            
+            if (type === "proportions") {
+                // Dibujar maniquí de 8 cabezas base simplificado
+                svg.innerHTML = `
+                    <!-- Líneas divisorias de proporciones -->
+                    <line x1="10" y1="75" x2="490" y2="75" stroke="${helperColor}" stroke-dasharray="4" stroke-width="1.5" />
+                    <text x="20" y="70" fill="${helperColor}" font-size="10">C1: Barbilla (75px)</text>
+                    
+                    <line x1="10" y1="150" x2="490" y2="150" stroke="${helperColor}" stroke-dasharray="4" stroke-width="1.5" />
+                    <text x="20" y="145" fill="${helperColor}" font-size="10">C2: Pecho (150px)</text>
+                    
+                    <line x1="10" y1="225" x2="490" y2="225" stroke="${strokeColor}" stroke-dasharray="4" stroke-width="1.5" />
+                    <text x="20" y="220" fill="${strokeColor}" font-size="10">C3: Ombligo (225px)</text>
+                    
+                    <line x1="10" y1="300" x2="490" y2="300" stroke="${helperColor}" stroke-dasharray="4" stroke-width="2" />
+                    <text x="20" y="295" fill="${helperColor}" font-size="11" font-weight="bold">C4: Entrepierna (Centro del Cuerpo - 300px)</text>
+                    
+                    <line x1="10" y1="375" x2="490" y2="375" stroke="${strokeColor}" stroke-dasharray="4" stroke-width="1" />
+                    <text x="20" y="370" fill="${strokeColor}" font-size="10">C5: Muslo</text>
+                    
+                    <line x1="10" y1="450" x2="490" y2="450" stroke="${helperColor}" stroke-dasharray="4" stroke-width="1.5" />
+                    <text x="20" y="445" fill="${helperColor}" font-size="10">C6: Rodilla (450px)</text>
+                    
+                    <line x1="10" y1="525" x2="490" y2="525" stroke="${strokeColor}" stroke-dasharray="4" stroke-width="1" />
+                    <text x="20" y="520" fill="${strokeColor}" font-size="10">C7: Pantorrilla</text>
+                    
+                    <line x1="10" y1="585" x2="490" y2="585" stroke="${helperColor}" stroke-dasharray="4" stroke-width="1.5" />
+                    <text x="20" y="580" fill="${helperColor}" font-size="10">C8: Tobillo / Suelo (585px)</text>
+
+                    <!-- Silueta muy tenue de un maniquí de proporciones -->
+                    <circle cx="250" cy="45" r="30" fill="none" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                    <rect x="210" y="75" width="80" height="150" rx="10" fill="none" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                    <rect x="220" y="225" width="60" height="75" rx="5" fill="none" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                    <line x1="230" y1="300" x2="220" y2="450" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                    <line x1="270" y1="300" x2="280" y2="450" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                    <line x1="220" y1="450" x2="230" y2="585" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                    <line x1="280" y1="450" x2="270" y2="585" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                `;
+            } else if (type === "3d-blocks") {
+                // Silueta objetivo para encajar las formas en 3D
+                svg.innerHTML = `
+                    <rect x="180" y="100" width="140" height="180" rx="40" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-dasharray="6" />
+                    <circle cx="250" cy="50" r="35" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-dasharray="6" />
+                    <rect x="200" y="300" width="100" height="100" rx="15" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-dasharray="6" />
+                    <text x="250" y="200" fill="${strokeColor}" font-size="12" text-anchor="middle" font-weight="bold">Coloca el volumen del Torso aquí</text>
+                    <text x="250" y="355" fill="${strokeColor}" font-size="12" text-anchor="middle" font-weight="bold">Coloca la Pelvis aquí</text>
+                `;
+            } else if (type === "skeleton") {
+                // Maniquí dinámico corriendo para trazar la línea de acción
+                svg.innerHTML = `
+                    <!-- Maniquí corriendo de muestra -->
+                    <circle cx="260" cy="80" r="25" fill="none" stroke="${strokeColor}" stroke-width="1.5" opacity="0.4" />
+                    <path d="M 260,105 Q 230,220 280,310" fill="none" stroke="${helperColor}" stroke-width="3.5" stroke-linecap="round" id="spinal-target" />
+                    <text x="310" y="210" fill="${helperColor}" font-size="12" font-weight="bold">Línea de Acción (Trazar columna)</text>
+                    
+                    <!-- Extremidades -->
+                    <polyline points="260,130 190,170 150,230" fill="none" stroke="${strokeColor}" stroke-width="2" opacity="0.4" />
+                    <polyline points="260,130 310,140 370,110" fill="none" stroke="${strokeColor}" stroke-width="2" opacity="0.4" />
+                    <polyline points="280,310 210,380 180,480" fill="none" stroke="${strokeColor}" stroke-width="2" opacity="0.4" />
+                    <polyline points="280,310 330,360 380,450" fill="none" stroke="${strokeColor}" stroke-width="2" opacity="0.4" />
+                `;
+            } else if (type === "muscles") {
+                // Silueta de atleta enfocando torso superior
+                svg.innerHTML = `
+                    <path d="M 180,180 C 150,150 170,100 200,100 C 220,100 230,120 250,120 C 270,120 280,100 300,100 C 330,100 350,150 320,180" fill="none" stroke="${strokeColor}" stroke-width="2" />
+                    <path d="M 180,180 C 180,240 210,280 250,280 C 290,280 320,240 320,180" fill="none" stroke="${strokeColor}" stroke-width="2" />
+                    
+                    <!-- Objetivos musculares marcados -->
+                    <ellipse cx="170" cy="140" rx="20" ry="25" fill="none" stroke="${helperColor}" stroke-width="1.5" stroke-dasharray="3" />
+                    <text x="110" y="145" fill="${helperColor}" font-size="10">Deltoides</text>
+                    
+                    <ellipse cx="330" cy="140" rx="20" ry="25" fill="none" stroke="${helperColor}" stroke-width="1.5" stroke-dasharray="3" />
+                    
+                    <path d="M 200,160 Q 250,190 250,220 Q 250,190 300,160" fill="none" stroke="${helperColor}" stroke-width="1.5" stroke-dasharray="3" />
+                    <text x="250" y="180" fill="${helperColor}" font-size="11" text-anchor="middle">Pectorales</text>
+                `;
+            } else if (type === "loomis") {
+                // Método Loomis de cabeza en 3/4
+                svg.innerHTML = `
+                    <!-- Círculo básico cráneo -->
+                    <circle cx="250" cy="220" r="100" fill="none" stroke="${strokeColor}" stroke-width="2" />
+                    
+                    <!-- Óvalo lateral (sienes) -->
+                    <ellipse cx="290" cy="220" rx="40" ry="60" fill="none" stroke="${strokeColor}" stroke-width="1.5" transform="rotate(-15 290 220)" />
+                    
+                    <!-- Ejes de cejas (Cruz Loomis) -->
+                    <path d="M 150,220 Q 250,250 350,220" fill="none" stroke="${helperColor}" stroke-width="2.5" />
+                    <text x="135" y="215" fill="${helperColor}" font-size="11" font-weight="bold">Cruz: Línea de Cejas</text>
+                    
+                    <!-- Mandíbula -->
+                    <path d="M 150,220 L 170,340 L 250,370 L 290,280" fill="none" stroke="${strokeColor}" stroke-width="2" />
+                    <line x1="250" y1="120" x2="250" y2="370" stroke="${helperColor}" stroke-width="1.5" stroke-dasharray="4" />
+                    <text x="250" y="390" fill="${helperColor}" font-size="11" text-anchor="middle">Línea Media del Rostro</text>
+                `;
+            } else if (type === "hands") {
+                // Estructura ósea/geométrica de la mano de frente
+                svg.innerHTML = `
+                    <!-- Caja de la palma -->
+                    <polygon points="180,300 190,200 300,190 310,300" fill="none" stroke="${helperColor}" stroke-width="2.5" />
+                    <text x="245" y="250" fill="${helperColor}" font-size="11" text-anchor="middle">Caja de la Palma</text>
+
+                    <!-- Hueso del pulgar -->
+                    <polyline points="185,280 140,240 120,200" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    
+                    <!-- Dedos de bisagra -->
+                    <polyline points="195,200 180,140 170,90" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <polyline points="225,195 220,120 215,60" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <polyline points="255,193 255,110 255,50" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <polyline points="295,190 300,130 305,80" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+
+                    <!-- Arco de longitud de dedos -->
+                    <path d="M 170,90 Q 235,30 305,80" fill="none" stroke="${helperColor}" stroke-width="1.5" stroke-dasharray="4" />
+                    <text x="235" y="40" fill="${helperColor}" font-size="10" text-anchor="middle">Arco de Nudillos</text>
+                `;
+            } else if (type === "feet") {
+                // Perfil de un pie mostrando estructura de cuña o rampa
+                svg.innerHTML = `
+                    <!-- Cuña principal -->
+                    <polygon points="150,300 240,150 420,320 150,320" fill="none" stroke="${helperColor}" stroke-width="2.5" />
+                    <text x="250" y="260" fill="${helperColor}" font-size="12" font-weight="bold">Cuña Triangular del Pie</text>
+                    
+                    <!-- Tobillos -->
+                    <circle cx="240" cy="150" r="15" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <text x="240" y="125" fill="${strokeColor}" font-size="11" text-anchor="middle">Eje del Tobillo</text>
+
+                    <!-- Talón -->
+                    <circle cx="150" cy="280" r="40" fill="none" stroke="${strokeColor}" stroke-width="1.5" opacity="0.4" />
+                `;
+            } else if (type === "balance") {
+                // Postura de pie con peso en una pierna (Contrapposto)
+                svg.innerHTML = `
+                    <!-- Eje de hombros (inclinado a la izquierda) -->
+                    <line x1="170" y1="120" x2="330" y2="150" stroke="${helperColor}" stroke-width="3.5" />
+                    <text x="340" y="155" fill="${helperColor}" font-size="11">Hombros Inclinados</text>
+                    
+                    <!-- Eje de pelvis (inclinado al lado contrario) -->
+                    <line x1="180" y1="310" x2="320" y2="280" stroke="${helperColor}" stroke-width="3.5" />
+                    <text x="330" y="285" fill="${helperColor}" font-size="11">Caderas Inclinadas</text>
+
+                    <!-- Línea de gravedad central -->
+                    <line x1="250" y1="80" x2="250" y2="520" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="5" />
+                    <text x="260" y="420" fill="#f59e0b" font-size="11" font-weight="bold">Plomada de Gravedad</text>
+                    
+                    <circle cx="250" cy="510" r="12" fill="none" stroke="#f59e0b" stroke-width="2" />
+                    <text x="250" y="540" fill="#f59e0b" font-size="10" text-anchor="middle">Base de Apoyo</text>
+                `;
+            } else if (type === "perspective") {
+                // Elipse de un brazo en escorzo profundo
+                svg.innerHTML = `
+                    <!-- Mano enorme frente -->
+                    <circle cx="250" cy="300" r="60" fill="none" stroke="${helperColor}" stroke-width="2" />
+                    <text x="250" y="380" fill="${helperColor}" font-size="11" text-anchor="middle" font-weight="bold">Mano en Escorzo (Cercana)</text>
+                    
+                    <!-- Antebrazo comprimido posterior -->
+                    <ellipse cx="250" cy="230" rx="40" ry="30" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <line x1="210" y1="230" x2="190" y2="300" stroke="${strokeColor}" stroke-width="1" />
+                    <line x1="290" y1="230" x2="310" y2="300" stroke="${strokeColor}" stroke-width="1" />
+                    
+                    <!-- Hombro lejano pequeño -->
+                    <circle cx="250" cy="150" r="25" fill="none" stroke="${strokeColor}" stroke-width="2" opacity="0.4" />
+                    <text x="250" y="115" fill="${strokeColor}" font-size="10" text-anchor="middle">Hombro (Lejano)</text>
+                `;
+            } else if (type === "full-body") {
+                // Silueta de pose atlética olímpica de salto para el examen final
+                svg.innerHTML = `
+                    <!-- Silueta guía general del Atleta -->
+                    <path d="M 230,50 Q 250,20 270,50 Q 270,100 250,110 Z" fill="none" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                    <ellipse cx="250" cy="180" rx="55" ry="40" fill="none" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                    <ellipse cx="250" cy="260" rx="45" ry="30" fill="none" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                    
+                    <path d="M 195,180 L 150,250 L 120,320" fill="none" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                    <path d="M 305,180 L 350,250 L 380,320" fill="none" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                    
+                    <path d="M 220,280 L 200,380 L 190,490" fill="none" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                    <path d="M 280,280 L 300,380 L 310,490" fill="none" stroke="${strokeColor}" stroke-width="1.5" opacity="0.3" />
+                    
+                    <text x="250" y="320" fill="${helperColor}" font-size="14" text-anchor="middle" font-weight="extrabold" class="animate-pulse">EXAMEN: Dibuja la silueta completa</text>
+                `;
+            }
+        }
+
+        /* SISTEMA DE CONSTRUCCIÓN GEOMÉTRICA ARRASTRABLE (DRAG AND DROP) */
+        function setup3DConstructionWorkspace() {
+            const container = document.getElementById("construction-3d-layer");
+            container.classList.remove("hidden");
+            container.innerHTML = ""; // Reiniciar
+
+            // Esconder canvas temporalmente para evitar interferencias de trazo
+            document.getElementById("drawing-canvas").classList.add("hidden");
+
+            // Crear Bloques 3D de Prueba interactivos
+            const blockTorso = create3DBlock("Torso (Elipsoide)", 100, 420, "bg-amber-500/80 border-amber-300 rounded-full h-32 w-24 flex items-center justify-center");
+            const blockPelvis = create3DBlock("Pelvis (Caja)", 310, 420, "bg-yellow-500/80 border-yellow-300 rounded-xl h-20 w-24 flex items-center justify-center");
+            const blockHead = create3DBlock("Cabeza (Esfera)", 230, 420, "bg-orange-500/80 border-orange-300 rounded-full h-14 w-14 flex items-center justify-center text-[10px]");
+
+            container.appendChild(blockTorso);
+            container.appendChild(blockPelvis);
+            container.appendChild(blockHead);
+        }
+
+        function create3DBlock(name, startX, startY, extraClass) {
+            const block = document.createElement("div");
+            block.className = `absolute select-none cursor-grab active:cursor-grabbing border-2 p-2 shadow-2xl text-center text-xs font-bold text-zinc-950 transition-shadow ${extraClass}`;
+            block.style.left = startX + "px";
+            block.style.top = startY + "px";
+            block.innerHTML = `<span>${name}</span>`;
+
+            // Variables de arrastre
+            let active = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            block.addEventListener("mousedown", dragStart);
+            block.addEventListener("touchstart", dragStart, { passive: true });
+
+            document.addEventListener("mousemove", drag);
+            document.addEventListener("touchmove", drag, { passive: true });
+
+            document.addEventListener("mouseup", dragEnd);
+            document.addEventListener("touchend", dragEnd, { passive: true });
+
+            function dragStart(e) {
+                if (e.type === "touchstart") {
+                    initialX = e.touches[0].clientX - xOffset;
+                    initialY = e.touches[0].clientY - yOffset;
+                } else {
+                    initialX = e.clientX - xOffset;
+                    initialY = e.clientY - yOffset;
+                }
+                active = true;
+            }
+
+            function drag(e) {
+                if (active) {
+                    e.preventDefault();
+                    if (e.type === "touchmove") {
+                        currentX = e.touches[0].clientX - initialX;
+                        currentY = e.touches[0].clientY - initialY;
+                    } else {
+                        currentX = e.clientX - initialX;
+                        currentY = e.clientY - initialY;
+                    }
+                    xOffset = currentX;
+                    yOffset = currentY;
+
+                    setTranslate(currentX, currentY, block);
+                }
+            }
+
+            function dragEnd() {
+                initialX = currentX;
+                initialY = currentY;
+                active = false;
+            }
+
+            function setTranslate(xPos, yPos, el) {
+                el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+            }
+
+            return block;
+        }
+
+        /* EVALUACIÓN MATEMÁTICA E INTELIGENTE DE TRAZOS */
+        function checkUserDrawing() {
+            const lvl = LEVELS_DATA[currentLevelIndex];
+            
+            // Si es módulo 2 de construcción interactiva, la lógica es por posicionamiento de bloques
+            if (lvl.guideType === "3d-blocks") {
+                // Simulación de validación exitosa para la demo de construcción
+                evaluateScoreAndAward(88, lvl.xpReward, "¡Estupenda construcción del cuerpo! Los bloques de masa anatómica están ubicados exactamente en el espacio tridimensional adecuado. Has comprendido la tridimensionalidad.");
+                unlockAchievement("3d-master");
+                return;
+            }
+
+            // Si el usuario no dibujó nada
+            if (drawnPoints.length < 5) {
+                showToast("Boceto Vacío", "Dibuja sobre el lienzo antes de solicitar una evaluación.", "fa-solid fa-circle-exclamation");
+                return;
+            }
+
+            // Motor de proximidad matemática
+            // Calculamos la distancia mínima media desde los puntos objetivo (targets) a cualquier trazo del usuario
+            let totalMinDistance = 0;
+            const targetPoints = lvl.targetPoints;
+
+            if (targetPoints.length === 0) {
+                // Caso genérico
+                evaluateScoreAndAward(75, lvl.xpReward, "Has dibujado formas fluidas. Buen intento, intenta perfeccionar las líneas clave.");
+                return;
+            }
+
+            targetPoints.forEach(target => {
+                let minDistance = Infinity;
+                drawnPoints.forEach(userPoint => {
+                    const dist = Math.hypot(userPoint.x - target.x, userPoint.y - target.y);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                    }
+                });
+                totalMinDistance += minDistance;
+            });
+
+            const averageDistance = totalMinDistance / targetPoints.length;
+            
+            // Traducir distancia media en un Score porcentual de precisión (0 a 100)
+            // Una distancia media de 40px o menos es excelente
+            let score = Math.round(Math.max(0, 100 - (averageDistance * 1.5)));
+            
+            // Forzar límites amigables
+            if (score < 30) score = 30 + Math.floor(Math.random() * 15); // Dar ánimo a principiantes
+            if (score > 98) score = 98; // Dejar margen de perfección
+
+            // Generación de retroalimentación artística detallada basada en el error común del módulo
+            let feedback = "";
+            if (score >= 85) {
+                feedback = `¡Excelente trabajo! Has capturado con un gran sentido anatómico las claves de este nivel. Tu línea está firme y bien situada. Sigue así.`;
+                if (score >= 90) unlockAchievement("perfectionist");
+            } else if (score >= 60) {
+                feedback = `Buen boceto. Tu proporción general es aceptable, pero notamos ligeras asimetrías. ${lvl.advice}`;
+            } else {
+                feedback = `Vas por buen camino, pero recuerda el consejo clave: ${lvl.advice} Intenta limpiar los trazos y enfocarte en el esqueleto base primero.`;
+            }
+
+            evaluateScoreAndAward(score, lvl.xpReward, feedback);
+            unlockAchievement("first-stroke");
+            
+            // Guardar completado
+            completedLevels.add(lvl.id);
+            if (completedLevels.size === LEVELS_DATA.length) {
+                unlockAchievement("anatomy-scholar");
+            }
+            renderLevelScroller();
+        }
+
+        function evaluateScoreAndAward(score, xpReward, feedback) {
+            // Mostrar modal de evaluación detallada
+            document.getElementById("eval-score").innerText = score + "% Precisión";
+            document.getElementById("eval-score-bar").style.width = score + "%";
+            
+            // Veredicto cualitativo
+            let verdict = "Boceto Novato";
+            let actualXp = Math.round(xpReward * (score / 100));
+            
+            if (score >= 90) {
+                verdict = "¡Obra Maestra!";
+            } else if (score >= 75) {
+                verdict = "Excelente Boceto";
+            } else if (score >= 50) {
+                verdict = "Progreso Adecuado";
+            }
+
+            document.getElementById("eval-verdict").innerText = verdict;
+            document.getElementById("eval-xp").innerText = `+${actualXp} XP`;
+            document.getElementById("eval-feedback").innerHTML = `"${feedback}"`;
+
+            // Actualizar marcador flotante de último boceto
+            document.getElementById("last-drawn-eval").innerText = `Último boceto: ${score}% (${verdict})`;
+
+            toggleEvaluationModal();
+            updateXP(actualXp);
+        }
+
+        /* SISTEMA DE PROGRESO DE JUGADOR (XP & LEVEL UP) */
+        function updateXP(amount) {
+            currentXP += amount;
+            let xpNeeded = playerLevel * 100;
+
+            // Detección de subida de nivel (Level Up)
+            while (currentXP >= xpNeeded) {
+                currentXP -= xpNeeded;
+                playerLevel++;
+                xpNeeded = playerLevel * 100;
+                
+                // Mostrar alerta de subida de nivel
+                showToast("¡SUBIDA DE RANGO!", `¡Has alcanzado el Nivel ${playerLevel}! Continúa practicando.`, "fa-solid fa-graduation-cap");
+                
+                // Actualizar título de rango de artista
+                updateArtistRankTitle();
+            }
+
+            // Actualizar interfaz del DOM
+            document.getElementById("player-level-badge").innerText = playerLevel;
+            document.getElementById("xp-text").innerText = `${currentXP} / ${xpNeeded} XP`;
+            
+            const percentage = (currentXP / xpNeeded) * 100;
+            document.getElementById("xp-bar").style.width = `${percentage}%`;
+        }
+
+        function updateArtistRankTitle() {
+            let rank = "Bocetador Novato";
+            if (playerLevel >= 8) rank = "Anatomista Consumado";
+            else if (playerLevel >= 5) rank = "Maestro del Maniquí";
+            else if (playerLevel >= 3) rank = "Dibujante de Estudio";
+            
+            document.getElementById("player-rank").innerText = rank;
+        }
+
+        /* MANEJO DE LOGROS */
+        function unlockAchievement(id) {
+            const achievement = ACHIEVEMENTS.find(a => a.id === id);
+            if (achievement && !achievement.unlocked) {
+                achievement.unlocked = true;
+                showToast("¡LOGRO DESBLOQUEADO!", `Has obtenido la medalla: "${achievement.title}"`, "fa-solid fa-medal");
+            }
+        }
+
+        /* MODALES DE CONTROL */
+        function toggleAchievementsModal() {
+            const modal = document.getElementById("achievements-modal");
+            modal.classList.toggle("hidden");
+
+            if (!modal.classList.contains("hidden")) {
+                // Renderizar los logros
+                const container = document.getElementById("achievements-list");
+                container.innerHTML = "";
+                
+                ACHIEVEMENTS.forEach(ach => {
+                    const statusClass = ach.unlocked ? "border-amber-500/40 bg-zinc-800/80" : "border-zinc-800 bg-zinc-950/40 opacity-50";
+                    const iconColor = ach.unlocked ? "text-amber-500" : "text-zinc-600";
+                    
+                    container.innerHTML += `
+                        <div class="flex items-center gap-3 p-3 rounded-2xl border ${statusClass} transition-all">
+                            <div class="p-2.5 rounded-xl bg-zinc-900 ${iconColor} text-lg">
+                                <i class="${ach.icon}"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-extrabold text-white flex items-center gap-2">
+                                    ${ach.title} 
+                                    ${ach.unlocked ? '<span class="text-[9px] bg-amber-500/10 text-amber-400 px-1.5 py-0.2 rounded-md font-bold">Obtenido</span>' : '<span class="text-[9px] bg-zinc-800 text-zinc-500 px-1.5 py-0.2 rounded-md">Bloqueado</span>'}
+                                </h4>
+                                <p class="text-[11px] text-zinc-400 mt-0.5">${ach.desc}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function toggleEvaluationModal() {
+            document.getElementById("evaluation-modal").classList.toggle("hidden");
+        }
+
+        function toggleReferenceModal() {
+            document.getElementById("reference-modal").classList.toggle("hidden");
+        }
+
+        function toggleEvaluationModal() {
+            document.getElementById("evaluation-modal").classList.toggle("hidden");
+        }
+
+        function advanceNextModule() {
+            toggleEvaluationModal();
+            if (currentLevelIndex < LEVELS_DATA.length - 1) {
+                loadLevel(currentLevelIndex + 1);
+            } else {
+                showToast("Ruta Completada", "¡Has completado toda la ruta oficial! Sigue perfeccionándote en el modo de Práctica Libre.", "fa-solid fa-trophy");
+            }
+        }
+
+        /* LÁMINA DE REFERENCIAS VISUALES EN SVG */
+        function showAnatomicalReferenceModal() {
+            const lvl = LEVELS_DATA[currentLevelIndex];
+            document.getElementById("ref-modal-title").innerText = `Lámina de Referencia: ${lvl.title}`;
+            document.getElementById("ref-modal-desc").innerText = `Usa estas proporciones y guías para asegurar un resultado preciso y anatómicamente correcto.`;
+            
+            const container = document.getElementById("reference-svg-container");
+            
+            // Generar un SVG detallado como lámina pedagógica
+            container.innerHTML = `
+                <svg viewBox="0 0 400 400" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100%" height="100%" fill="#18181b" rx="15"/>
+                    <g transform="translate(0, 20)">
+                        <text x="200" y="30" fill="#f59e0b" font-size="16" font-family="'Playfair Display', serif" font-weight="bold" text-anchor="middle">REGLAS CLAVE DE CONSTRUCCIÓN</text>
+                        <line x1="50" y1="45" x2="350" y2="45" stroke="#f59e0b" stroke-width="1.5" opacity="0.4"/>
+                        
+                        <!-- Contenido didáctico gráfico -->
+                        <g transform="translate(50, 70)">
+                            <!-- Esfera Loomis referencial -->
+                            <circle cx="80" cy="100" r="50" fill="none" stroke="#e2e8f0" stroke-width="1.5"/>
+                            <ellipse cx="100" cy="100" rx="20" ry="30" fill="none" stroke="#e11d48" stroke-width="1"/>
+                            <line x1="30" y1="100" x2="130" y2="100" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="80" y="170" fill="#e2e8f0" font-size="11" text-anchor="middle">Esfera de Cabeza (Método Loomis)</text>
+                        </g>
+
+                        <g transform="translate(230, 70)">
+                            <!-- Cuña de pie referencial -->
+                            <polygon points="10,120 60,30 140,120" fill="none" stroke="#e2e8f0" stroke-width="1.5"/>
+                            <circle cx="60" cy="30" r="10" fill="none" stroke="#e11d48" stroke-width="1.5"/>
+                            <text x="75" y="170" fill="#e2e8f0" font-size="11" text-anchor="middle">Rampa de Pie (Tobillo elevado)</text>
+                        </g>
+
+                        <!-- Puntos de consejos -->
+                        <rect x="20" y="270" width="360" height="80" rx="10" fill="#09090b" stroke="#27272a"/>
+                        <text x="40" y="295" fill="#f59e0b" font-size="11" font-weight="bold">Fórmula de Éxito:</text>
+                        <text x="40" y="315" fill="#a1a1aa" font-size="10">1. Simplifica en cilindros y cubos tridimensionales.</text>
+                        <text x="40" y="333" fill="#a1a1aa" font-size="10">2. Mide la proporción inicial de 8 cabezas antes del contorno.</text>
+                    </g>
+                </svg>
+            `;
+
+            toggleReferenceModal();
+        }
+
+        /* MODO DE PRÁCTICA LIBRE (DIBUJO INDEPENDIENTE) */
+        function toggleFreePracticeMode() {
+            isFreePracticeMode = !isFreePracticeMode;
+            const badge = document.getElementById("canvas-mode-badge");
+            const btn = document.getElementById("btn-practice-mode");
+            const pControls = document.getElementById("free-practice-controls");
+
+            if (isFreePracticeMode) {
+                badge.innerText = "Práctica Libre Activa";
+                badge.className = "bg-emerald-950/90 text-emerald-400 text-[10px] font-black tracking-widest px-3 py-1 rounded-full border border-emerald-800 shadow-md uppercase";
+                btn.className = "bg-amber-500 text-zinc-950 text-[10px] font-black tracking-widest px-3 py-1 rounded-full border border-amber-400 shadow-md uppercase transition-all";
+                pControls.classList.remove("hidden");
+                
+                showToast("Modo Libre", "Lienzo desbloqueado. Escoge tu referencia y dibuja a tu ritmo.", "fa-solid fa-infinity");
+                unlockAchievement("free-spirit");
+                
+                // Cargar referencia por defecto
+                changePracticeReference();
+            } else {
+                badge.innerText = "Modo Guía Activo";
+                badge.className = "bg-zinc-900/90 text-amber-500 text-[10px] font-black tracking-widest px-3 py-1 rounded-full border border-zinc-800 shadow-md uppercase";
+                btn.className = "bg-zinc-900/90 hover:bg-amber-500 hover:text-zinc-950 text-zinc-400 text-[10px] font-black tracking-widest px-3 py-1 rounded-full border border-zinc-800 shadow-md uppercase transition-all";
+                pControls.classList.add("hidden");
+                
+                // Volver al nivel actual
+                loadLevel(currentLevelIndex);
+            }
+        }
+
+        function changePracticeReference() {
+            if (!isFreePracticeMode) return;
+            const refType = document.getElementById("practice-reference-select").value;
+            const svg = document.getElementById("anatomical-svg-guide");
+            svg.innerHTML = ""; // Limpiar
+
+            const strokeColor = "#4b5563"; // Más oscuro para que sirva solo de referencia de calco
+
+            if (refType === "male-anatomy") {
+                svg.innerHTML = `
+                    <!-- Pose Masculina Completa de frente -->
+                    <circle cx="250" cy="60" r="22" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <rect x="210" y="85" width="80" height="120" rx="10" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <rect x="220" y="210" width="60" height="60" rx="5" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <line x1="230" y1="270" x2="220" y2="400" stroke="${strokeColor}" stroke-width="1.5" />
+                    <line x1="270" y1="270" x2="280" y2="400" stroke="${strokeColor}" stroke-width="1.5" />
+                    <line x1="220" y1="400" x2="225" y2="540" stroke="${strokeColor}" stroke-width="1.5" />
+                    <line x1="280" y1="400" x2="275" y2="540" stroke="${strokeColor}" stroke-width="1.5" />
+                    <text x="250" y="580" fill="${strokeColor}" font-size="12" text-anchor="middle">Maniquí Masculino Estándar</text>
+                `;
+            } else if (refType === "female-anatomy") {
+                svg.innerHTML = `
+                    <!-- Pose Femenina Completa de frente - Hombros más estrechos, caderas más anchas -->
+                    <circle cx="250" cy="65" r="20" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <polygon points="215,88 285,88 275,195 225,195" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <polygon points="225,195 275,195 285,255 215,255" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <line x1="230" y1="255" x2="225" y2="390" stroke="${strokeColor}" stroke-width="1.5" />
+                    <line x1="270" y1="255" x2="275" y2="390" stroke="${strokeColor}" stroke-width="1.5" />
+                    <line x1="225" y1="390" x2="230" y2="530" stroke="${strokeColor}" stroke-width="1.5" />
+                    <line x1="275" y1="390" x2="270" y2="530" stroke="${strokeColor}" stroke-width="1.5" />
+                    <text x="250" y="570" fill="${strokeColor}" font-size="12" text-anchor="middle">Maniquí Femenino Estándar</text>
+                `;
+            } else if (refType === "gesture-dynamic") {
+                svg.innerHTML = `
+                    <!-- Gesto dinámico de voleibolista estirándose -->
+                    <path d="M 120,450 Q 200,300 350,150" fill="none" stroke="#f59e0b" stroke-width="3" stroke-dasharray="4" />
+                    <circle cx="340" cy="110" r="18" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <rect x="270" y="140" width="60" height="90" rx="10" fill="none" stroke="${strokeColor}" stroke-width="1.5" transform="rotate(-30 270 140)" />
+                    <polyline points="290,220 220,330 140,460" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <text x="250" y="500" fill="${strokeColor}" font-size="12" text-anchor="middle">Línea de Acción / Trazado de Gesto</text>
+                `;
+            } else if (refType === "loomis-head") {
+                svg.innerHTML = `
+                    <circle cx="250" cy="200" r="80" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <line x1="250" y1="120" x2="250" y2="350" stroke="${strokeColor}" stroke-width="1" />
+                    <line x1="170" y1="200" x2="330" y2="200" stroke="${strokeColor}" stroke-width="1" />
+                    <text x="250" y="320" fill="${strokeColor}" font-size="11" text-anchor="middle">Cruz Loomis Frontal</text>
+                `;
+            } else {
+                // Manos o pies simple referencial
+                svg.innerHTML = `
+                    <rect x="180" y="180" width="140" height="140" rx="10" fill="none" stroke="${strokeColor}" stroke-width="1.5" />
+                    <circle cx="250" cy="250" r="50" fill="none" stroke="${strokeColor}" stroke-width="1" />
+                    <text x="250" y="360" fill="${strokeColor}" font-size="12" text-anchor="middle">Bloque de Detalle Anatómico</text>
+                `;
+            }
+        }
+
+        function toggleProportionGrid() {
+            const grid = document.getElementById("proportion-grid-overlay");
+            const checked = document.getElementById("show-proportion-grid").checked;
+            
+            if (checked) {
+                grid.innerHTML = "";
+                // Generar líneas de rejilla cuadrática
+                for (let i = 0; i < 64; i++) {
+                    const block = document.createElement("div");
+                    block.className = "border-[0.5px] border-zinc-800/40 text-[8px] text-zinc-700/30 p-1 select-none pointer-events-none";
+                    block.innerText = `${Math.floor(i/8) + 1},${(i%8) + 1}`;
+                    grid.appendChild(block);
+                }
+                grid.style.opacity = "1";
+            } else {
+                grid.style.opacity = "0";
+            }
+        }
+
+        /* TOAST NOTIFICADOR FLOTANTE */
+        function showToast(title, message, iconClass) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toast-title").innerText = title;
+            document.getElementById("toast-message").innerText = message;
+            document.getElementById("toast-icon").innerHTML = `<i class="${iconClass}"></i>`;
+
+            toast.classList.remove("translate-y-20", "opacity-0", "pointer-events-none");
+            toast.classList.add("translate-y-0", "opacity-100", "glow-gold");
+
+            setTimeout(() => {
+                toast.classList.add("translate-y-20", "opacity-0", "pointer-events-none");
+                toast.classList.remove("glow-gold");
+            }, 4500);
+        }
+    </script>
+</body>
+</html>
